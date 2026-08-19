@@ -1,9 +1,73 @@
 ---
-name: "..."
-description: "..."
+name: "Gradle Toolchain Setup"
+description: "Set-up the toolchain for Gradle builds"
 inputs:
-  ...
-outputs:
-  ...
+  buf_version:
+    description: >-
+      Version of buf to install. Required where protobuf
+      sources are generated as part of the build; leave empty otherwise.
+    required: false
+    default: ""
+  gradle_cache_read_only:
+    description: >-
+      If true, the Gradle cache is read-only.
+    required: false
+    default: "false"
+  token:
+    description: "The workflow's GitHub token"
+    required: true
 runs:
-  ...
+  using: "composite"
+  steps:
+    - id: read-tools-choice
+      name: "Read tools version"
+      shell: bash
+      run: |
+        [ "${{ runner.debug }}" == 1 ] && set -xv
+        set -u
+
+        property_name=helm.client.download.version
+        if grep -qs -w ^${property_name} gradle.properties; then
+          helm_version="$(grep -w ^${property_name} gradle.properties | cut -d= -f2)"
+        fi
+
+        property_name=toolchainVersion
+        if grep -qs -w ^${property_name} gradle/gradle-daemon-jvm.properties; then
+          java_version="$(grep -w ^${property_name} gradle/gradle-daemon-jvm.properties | cut -d= -f2)"
+        else
+          java_version=21
+        fi
+
+        property_name=toolchainVendor
+        if grep -qs -w ^${property_name} gradle/gradle-daemon-jvm.properties; then
+          java_vendor="$(grep -w ^${property_name} gradle/gradle-daemon-jvm.properties | cut -d= -f2)"
+        else
+          java_vendor=corretto
+        fi
+
+        {
+        [ -v helm_version ] && echo "helm_version=${helm_version}"
+        echo "java_version=${java_version}"
+        echo "java_vendor=${java_vendor}"
+        } >>"${GITHUB_OUTPUT}"
+
+    - uses: actions/setup-java@v5
+      with:
+        distribution: ${{ steps.read-tools-choice.outputs.java_vendor }}
+        java-version: ${{ steps.read-tools-choice.outputs.java_version }}
+
+    - uses: gradle/actions/setup-gradle@v6
+      with:
+        cache-read-only: ${{ inputs.gradle_cache_read_only }}
+
+    - uses: azure/setup-helm@v5
+      if: ${{ steps.read-tools-choice.outputs.helm_version }}
+      with:
+        version: ${{ steps.read-tools-choice.outputs.helm_version }}
+
+    - uses: bufbuild/buf-action@v1
+      if: inputs.buf_version != ''
+      with:
+        version: ${{ inputs.buf_version }}
+        github_token: ${{ inputs.token }}
+        setup_only: true

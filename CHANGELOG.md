@@ -18,28 +18,7 @@ Categories, defined in [changemap.json](.github/clq/changemap.json):
   - `Fixed` for any bugfixes.
   - `Security` in case of vulnerabilities.
 
-## [1.1.0] - 2026-02-22
-
-### Added
-
-- `Makefile` allows for local execution of the linting steps.
-
-### Fixed
-
-- Bump `actions/checkout` from 5 to 7
-- `super-linter` uses a fixed set of linters to prevent surprises.
-
-## [1.0.1] - 2025-08-19
-
-### Fixed
-
-- Bump actions/checkout from 4 to 5
-- Bump super-linter/super-linter from 7 to 8
-- Updated to improved CI/CD flow
-  - Better recognition of the default branch (it is protected)
-  - Suppress work on draft pull request
-
-## [1.0.0] - 2025-01-08
+## [1.0.0] - 2026-08-19
 
 ### Added
 
