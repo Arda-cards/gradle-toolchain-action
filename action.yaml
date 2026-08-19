@@ -1,6 +1,6 @@
 ---
 name: "Gradle Toolchain Setup"
-description: "Set-up the toolchain for Gradle builds"
+description: "Set up the toolchain for Gradle builds"
 inputs:
   buf_version:
     description: >-
@@ -26,7 +26,7 @@ runs:
         [ "${{ runner.debug }}" == 1 ] && set -xv
         set -u
 
-        property_name=helm.client.download.version
+        property_name=helm\.client\.download\.version
         if grep -qs -w ^${property_name} gradle.properties; then
           helm_version="$(grep -w ^${property_name} gradle.properties | cut -d= -f2)"
         fi
