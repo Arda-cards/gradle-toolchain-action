@@ -51,7 +51,7 @@ runs:
         echo "java_vendor=${java_vendor}"
         } >>"${GITHUB_OUTPUT}"
 
-    - uses: actions/setup-java@v5
+    - uses: actions/setup-java@v6
       with:
         distribution: ${{ steps.read-tools-choice.outputs.java_vendor }}
         java-version: ${{ steps.read-tools-choice.outputs.java_version }}
